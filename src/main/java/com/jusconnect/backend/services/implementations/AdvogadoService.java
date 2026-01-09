@@ -3,12 +3,14 @@ package com.jusconnect.backend.services.implementations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.jusconnect.backend.dtos.AdvogadoLoginRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoResponseDTO;
 import com.jusconnect.backend.models.Advogado;
 import com.jusconnect.backend.repositories.AdvogadoRepository;
 import com.jusconnect.backend.services.interfaces.AdvogadoServiceInterface;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -56,6 +58,29 @@ public class AdvogadoService implements AdvogadoServiceInterface{
         Advogado advogado = advogadoRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Advogado não encontrado"));
 
+        return AdvogadoResponseDTO.builder()
+                .id(advogado.getId())
+                .nome(advogado.getNome())
+                .cpf(advogado.getCpf())
+                .email(advogado.getEmail())
+                .telefone(advogado.getTelefone())
+                .autodescricao(advogado.getAutodescricao())
+                .area_de_atuacao(advogado.getArea_de_atuacao())
+                .build();
+    }
+
+    @Override
+    public AdvogadoResponseDTO login(AdvogadoLoginRequestDTO request) {
+        // Buscar advogado por CPF
+        Advogado advogado = advogadoRepository.findByCpf(request.getCpf())
+            .orElseThrow(() -> new EntityNotFoundException("CPF não encontrado no sistema"));
+
+        // Verificar senha
+        if (!passwordEncoder.matches(request.getSenha(), advogado.getSenha())) {
+            throw new IllegalArgumentException("Senha incorreta");
+        }
+
+        // Login bem-sucedido
         return AdvogadoResponseDTO.builder()
                 .id(advogado.getId())
                 .nome(advogado.getNome())

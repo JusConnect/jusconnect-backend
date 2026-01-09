@@ -1,5 +1,6 @@
 package com.jusconnect.backend.controllers;
 
+import com.jusconnect.backend.dtos.AdvogadoLoginRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoResponseDTO;
 import com.jusconnect.backend.services.interfaces.AdvogadoServiceInterface;
@@ -59,6 +60,30 @@ public class AdvogadoController {
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
+        }
+    }
+
+    @Operation(
+        summary = "Login de advogado",
+        description = "Realiza o login do advogado no sistema usando CPF e senha.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Login realizado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Senha incorreta"),
+            @ApiResponse(responseCode = "404", description = "CPF não encontrado no sistema"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        }
+    )
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody AdvogadoLoginRequestDTO request) {
+        try {
+            AdvogadoResponseDTO response = advogadoService.login(request);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
         }

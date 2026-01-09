@@ -6,5 +6,7 @@ public interface AdvogadoServiceInterface {
 
     public AdvogadoResponseDTO cadastrarAdvogado(AdvogadoRequestDTO request);
     AdvogadoResponseDTO visualizarPerfil(Long id);
+    AdvogadoResponseDTO login(AdvogadoLoginRequestDTO request);
+
 
 }
