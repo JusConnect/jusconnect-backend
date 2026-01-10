@@ -34,6 +34,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 
     // Lombok
     compileOnly("org.projectlombok:lombok")
@@ -45,6 +46,8 @@ dependencies {
     // Runtime
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     // Testes
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -52,11 +55,6 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-// hibernate {
-// 	enhancement {
-// 		enableAssociationManagement = true
-// 	}
-// }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
