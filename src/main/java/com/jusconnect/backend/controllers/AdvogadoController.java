@@ -1,5 +1,6 @@
 package com.jusconnect.backend.controllers;
 
+import com.jusconnect.backend.config.JwtUtil;
 import com.jusconnect.backend.dtos.AdvogadoRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoResponseDTO;
 import com.jusconnect.backend.services.interfaces.AdvogadoServiceInterface;
@@ -14,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/advogados")
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdvogadoController {
 
     private final AdvogadoServiceInterface advogadoService;
+    private final JwtUtil jwtUtil;
 
     @Operation(
         summary = "Cadastrar novo advogado",
@@ -56,6 +61,41 @@ public class AdvogadoController {
     public ResponseEntity<?> visualizarPerfil(@PathVariable Long id) {
         try {
             AdvogadoResponseDTO response = advogadoService.visualizarPerfil(id);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
+        }
+    }
+
+    @Operation(
+        summary = "Visualizar meu perfil (advogado logado)",
+        description = "Retorna os dados do advogado logado a partir do token JWT.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Perfil encontrado"),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
+            @ApiResponse(responseCode = "404", description = "Advogado não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        }
+    )
+    @GetMapping("/me")
+    public ResponseEntity<?> visualizarMeuPerfil(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não informado ou inválido");
+            }
+
+            String token = authHeader.substring(7);
+            Claims claims = jwtUtil.parseAllClaims(token);
+            Long advogadoId = claims.get("aid", Long.class);
+
+            if (advogadoId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não contém identificador de advogado");
+            }
+
+            AdvogadoResponseDTO response = advogadoService.visualizarPerfil(advogadoId);
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

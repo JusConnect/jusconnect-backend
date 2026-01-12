@@ -6,5 +6,6 @@ import com.jusconnect.backend.dtos.ClienteResponseDTO;
 public interface ClienteServiceInterface {
     
     public ClienteResponseDTO cadastrarCliente (ClienteRequestDTO request);
+    ClienteResponseDTO visualizarPerfil(Long id);
 
 }

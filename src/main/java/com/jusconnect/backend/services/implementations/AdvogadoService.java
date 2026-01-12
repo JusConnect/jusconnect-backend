@@ -9,6 +9,7 @@ import com.jusconnect.backend.models.Advogado;
 import com.jusconnect.backend.repositories.AdvogadoRepository;
 import com.jusconnect.backend.services.interfaces.AdvogadoServiceInterface;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -54,7 +55,7 @@ public class AdvogadoService implements AdvogadoServiceInterface{
     @Override
     public AdvogadoResponseDTO visualizarPerfil(Long id) {
         Advogado advogado = advogadoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Advogado não encontrado"));
+            .orElseThrow(() -> new EntityNotFoundException("Advogado não encontrado"));
 
         return AdvogadoResponseDTO.builder()
                 .id(advogado.getId())

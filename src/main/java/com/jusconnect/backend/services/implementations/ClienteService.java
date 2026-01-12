@@ -9,6 +9,7 @@ import com.jusconnect.backend.models.Cliente;
 import com.jusconnect.backend.repositories.ClienteRepository;
 import com.jusconnect.backend.services.interfaces.ClienteServiceInterface;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,6 +45,20 @@ public class ClienteService implements ClienteServiceInterface {
                 .cpf(savedCliente.getCpf())
                 .email(savedCliente.getEmail())
                 .telefone(savedCliente.getTelefone())
+                .build();
+    }
+
+    @Override
+    public ClienteResponseDTO visualizarPerfil(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+
+        return ClienteResponseDTO.builder()
+                .id(cliente.getId())
+                .nome(cliente.getNome())
+                .cpf(cliente.getCpf())
+                .email(cliente.getEmail())
+                .telefone(cliente.getTelefone())
                 .build();
     }
 
