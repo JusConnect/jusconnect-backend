@@ -3,6 +3,7 @@ package com.jusconnect.backend.controllers;
 import com.jusconnect.backend.config.JwtUtil;
 import com.jusconnect.backend.dtos.AdvogadoRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoResponseDTO;
+import com.jusconnect.backend.dtos.AdvogadoUpdateDTO;
 import com.jusconnect.backend.services.interfaces.AdvogadoServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -78,6 +79,32 @@ public class AdvogadoController {
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
+        }
+    }
+
+    @Operation(
+        summary = "Atualizar perfil do advogado",
+        description = "Atualiza os dados do perfil do advogado. Apenas os campos fornecidos serão atualizados.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Advogado não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        }
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizarPerfil(
+            @PathVariable Long id,
+            @Valid @RequestBody AdvogadoUpdateDTO request) {
+        try {
+            AdvogadoResponseDTO response = advogadoService.atualizarPerfil(id, request);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
         }

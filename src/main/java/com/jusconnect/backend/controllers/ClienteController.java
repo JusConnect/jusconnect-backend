@@ -3,6 +3,7 @@ package com.jusconnect.backend.controllers;
 import com.jusconnect.backend.config.JwtUtil;
 import com.jusconnect.backend.dtos.ClienteRequestDTO;
 import com.jusconnect.backend.dtos.ClienteResponseDTO;
+import com.jusconnect.backend.dtos.ClienteUpdateDTO;
 import com.jusconnect.backend.services.interfaces.ClienteServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -81,4 +82,28 @@ public class ClienteController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
 		}
 	}
+        summary = "Atualizar perfil do cliente",
+        description = "Atualiza os dados do perfil do cliente. Apenas os campos fornecidos serão atualizados.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        }
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizarPerfil(
+            @PathVariable Long id,
+            @Valid @RequestBody ClienteUpdateDTO request) {
+        try {
+            ClienteResponseDTO response = clienteService.atualizarPerfil(id, request);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
+        }
+    }
 }

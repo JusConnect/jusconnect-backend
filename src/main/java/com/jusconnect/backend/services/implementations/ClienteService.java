@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.jusconnect.backend.dtos.ClienteRequestDTO;
 import com.jusconnect.backend.dtos.ClienteResponseDTO;
+import com.jusconnect.backend.dtos.ClienteUpdateDTO;
 import com.jusconnect.backend.models.Cliente;
 import com.jusconnect.backend.repositories.ClienteRepository;
 import com.jusconnect.backend.services.interfaces.ClienteServiceInterface;
@@ -59,6 +60,38 @@ public class ClienteService implements ClienteServiceInterface {
                 .cpf(cliente.getCpf())
                 .email(cliente.getEmail())
                 .telefone(cliente.getTelefone())
+      }
+  
+    public ClienteResponseDTO atualizarPerfil(Long id, ClienteUpdateDTO request) {
+        Cliente cliente = clienteRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+
+        // Atualiza apenas os campos que foram fornecidos (não nulos)
+        if (request.getNome() != null && !request.getNome().isBlank()) {
+            cliente.setNome(request.getNome());
+        }
+
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            cliente.setEmail(request.getEmail());
+        }
+
+        if (request.getTelefone() != null && !request.getTelefone().isBlank()) {
+            cliente.setTelefone(request.getTelefone());
+        }
+
+        if (request.getSenha() != null && !request.getSenha().isBlank()) {
+            String hashedSenha = passwordEncoder.encode(request.getSenha());
+            cliente.setSenha(hashedSenha);
+        }
+
+        Cliente updatedCliente = clienteRepository.save(cliente);
+
+        return ClienteResponseDTO.builder()
+                .id(updatedCliente.getId())
+                .nome(updatedCliente.getNome())
+                .cpf(updatedCliente.getCpf())
+                .email(updatedCliente.getEmail())
+                .telefone(updatedCliente.getTelefone())
                 .build();
     }
 
