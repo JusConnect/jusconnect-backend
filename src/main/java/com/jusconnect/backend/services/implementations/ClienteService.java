@@ -60,6 +60,7 @@ public class ClienteService implements ClienteServiceInterface {
                 .cpf(cliente.getCpf())
                 .email(cliente.getEmail())
                 .telefone(cliente.getTelefone())
+                .build();
       }
   
     public ClienteResponseDTO atualizarPerfil(Long id, ClienteUpdateDTO request) {

@@ -82,6 +82,7 @@ public class ClienteController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
 		}
 	}
+	@Operation(
         summary = "Atualizar perfil do cliente",
         description = "Atualiza os dados do perfil do cliente. Apenas os campos fornecidos serão atualizados.",
         responses = {
@@ -91,6 +92,7 @@ public class ClienteController {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
         }
     )
+
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizarPerfil(
             @PathVariable Long id,
