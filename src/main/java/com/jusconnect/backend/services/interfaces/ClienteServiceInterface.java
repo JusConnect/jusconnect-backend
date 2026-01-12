@@ -7,6 +7,7 @@ import com.jusconnect.backend.dtos.ClienteUpdateDTO;
 public interface ClienteServiceInterface {
     
     public ClienteResponseDTO cadastrarCliente (ClienteRequestDTO request);
+    ClienteResponseDTO visualizarPerfil(Long id);
     ClienteResponseDTO atualizarPerfil(Long id, ClienteUpdateDTO request);
 
 }

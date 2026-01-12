@@ -50,6 +50,18 @@ public class ClienteService implements ClienteServiceInterface {
     }
 
     @Override
+    public ClienteResponseDTO visualizarPerfil(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+
+        return ClienteResponseDTO.builder()
+                .id(cliente.getId())
+                .nome(cliente.getNome())
+                .cpf(cliente.getCpf())
+                .email(cliente.getEmail())
+                .telefone(cliente.getTelefone())
+      }
+  
     public ClienteResponseDTO atualizarPerfil(Long id, ClienteUpdateDTO request) {
         Cliente cliente = clienteRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
