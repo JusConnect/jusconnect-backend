@@ -49,27 +49,6 @@ public class AdvogadoController {
     }
 
     @Operation(
-        summary = "Visualizar perfil do advogado",
-        description = "Retorna os dados do advogado pelo ID.",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Perfil encontrado"),
-            @ApiResponse(responseCode = "404", description = "Advogado não encontrado"),
-            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-        }
-    )
-    @GetMapping("/{id}")
-    public ResponseEntity<?> visualizarPerfil(@PathVariable Long id) {
-        try {
-            AdvogadoResponseDTO response = advogadoService.visualizarPerfil(id);
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
-        }
-    }
-
-    @Operation(
         summary = "Visualizar meu perfil (advogado logado)",
         description = "Retorna os dados do advogado logado a partir do token JWT.",
         responses = {
