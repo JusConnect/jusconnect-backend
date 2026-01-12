@@ -5,10 +5,12 @@ import org.springframework.stereotype.Service;
 
 import com.jusconnect.backend.dtos.AdvogadoRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoResponseDTO;
+import com.jusconnect.backend.dtos.AdvogadoUpdateDTO;
 import com.jusconnect.backend.models.Advogado;
 import com.jusconnect.backend.repositories.AdvogadoRepository;
 import com.jusconnect.backend.services.interfaces.AdvogadoServiceInterface;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -66,4 +68,49 @@ public class AdvogadoService implements AdvogadoServiceInterface{
                 .area_de_atuacao(advogado.getArea_de_atuacao())
                 .build();
     }
+
+    @Override
+    public AdvogadoResponseDTO atualizarPerfil(Long id, AdvogadoUpdateDTO request) {
+        Advogado advogado = advogadoRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Advogado não encontrado"));
+
+        // Atualiza apenas os campos que foram fornecidos (não nulos)
+        if (request.getNome() != null && !request.getNome().isBlank()) {
+            advogado.setNome(request.getNome());
+        }
+
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            advogado.setEmail(request.getEmail());
+        }
+
+        if (request.getTelefone() != null && !request.getTelefone().isBlank()) {
+            advogado.setTelefone(request.getTelefone());
+        }
+
+        if (request.getSenha() != null && !request.getSenha().isBlank()) {
+            String hashedSenha = passwordEncoder.encode(request.getSenha());
+            advogado.setSenha(hashedSenha);
+        }
+
+        if (request.getAutodescricao() != null && !request.getAutodescricao().isBlank()) {
+            advogado.setAutodescricao(request.getAutodescricao());
+        }
+
+        if (request.getArea_de_atuacao() != null && !request.getArea_de_atuacao().isBlank()) {
+            advogado.setArea_de_atuacao(request.getArea_de_atuacao());
+        }
+
+        Advogado updatedAdvogado = advogadoRepository.save(advogado);
+
+        return AdvogadoResponseDTO.builder()
+                .id(updatedAdvogado.getId())
+                .nome(updatedAdvogado.getNome())
+                .cpf(updatedAdvogado.getCpf())
+                .email(updatedAdvogado.getEmail())
+                .telefone(updatedAdvogado.getTelefone())
+                .autodescricao(updatedAdvogado.getAutodescricao())
+                .area_de_atuacao(updatedAdvogado.getArea_de_atuacao())
+                .build();
+    }
+
 }
