@@ -85,21 +85,32 @@ public class AdvogadoController {
     }
 
     @Operation(
-        summary = "Atualizar perfil do advogado",
-        description = "Atualiza os dados do perfil do advogado. Apenas os campos fornecidos serão atualizados.",
+        summary = "Atualizar perfil do advogado autenticado",
+        description = "Atualiza os dados do perfil do advogado autenticado. Apenas os campos fornecidos serão atualizados.",
         responses = {
             @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token não informado ou inválido"),
             @ApiResponse(responseCode = "404", description = "Advogado não encontrado"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
         }
     )
-    @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarPerfil(
-            @PathVariable Long id,
-            @Valid @RequestBody AdvogadoUpdateDTO request) {
+    @PutMapping("/me")
+    public ResponseEntity<?> atualizarMeuPerfil(
+            HttpServletRequest request,
+            @Valid @RequestBody AdvogadoUpdateDTO updateRequest) {
         try {
-            AdvogadoResponseDTO response = advogadoService.atualizarPerfil(id, request);
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não informado ou inválido");
+            }
+            String token = authHeader.substring(7);
+            Claims claims = jwtUtil.parseAllClaims(token);
+            Long advogadoId = claims.get("aid", Long.class);
+            if (advogadoId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não contém identificador de advogado");
+            }
+            AdvogadoResponseDTO response = advogadoService.atualizarPerfil(advogadoId, updateRequest);
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

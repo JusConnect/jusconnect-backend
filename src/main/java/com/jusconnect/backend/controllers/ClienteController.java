@@ -82,23 +82,34 @@ public class ClienteController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
 		}
 	}
+	
 	@Operation(
         summary = "Atualizar perfil do cliente",
-        description = "Atualiza os dados do perfil do cliente. Apenas os campos fornecidos serão atualizados.",
+        description = "Atualiza os dados do perfil do cliente autenticado. Apenas os campos fornecidos serão atualizados.",
         responses = {
             @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token não informado ou inválido"),
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
         }
     )
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> atualizarPerfil(
-            @PathVariable Long id,
-            @Valid @RequestBody ClienteUpdateDTO request) {
+    @PutMapping("/me")
+    public ResponseEntity<?> atualizarMeuPerfil(
+            HttpServletRequest request,
+            @Valid @RequestBody ClienteUpdateDTO updateRequest) {
         try {
-            ClienteResponseDTO response = clienteService.atualizarPerfil(id, request);
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não informado ou inválido");
+            }
+            String token = authHeader.substring(7);
+            Claims claims = jwtUtil.parseAllClaims(token);
+            Long clienteId = claims.get("cid", Long.class);
+            if (clienteId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não contém identificador de cliente");
+            }
+            ClienteResponseDTO response = clienteService.atualizarPerfil(clienteId, updateRequest);
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
