@@ -11,4 +11,5 @@ public interface AdvogadoRepository extends JpaRepository<Advogado, Long> {
 
     Optional<Advogado> findByCpf(String cpf);
     boolean existsByCpf(String cpf);
+
 }
