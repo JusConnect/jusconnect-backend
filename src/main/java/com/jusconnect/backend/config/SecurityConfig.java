@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .requestMatchers("/advogados").permitAll()
                 .requestMatchers("/clientes").permitAll()
                 .requestMatchers("/clientes/**").permitAll()
+                .requestMatchers("/solicitacoes").permitAll()
+                .requestMatchers("/solicitacoes/**").permitAll()
 
                 .anyRequest().authenticated()
             )
