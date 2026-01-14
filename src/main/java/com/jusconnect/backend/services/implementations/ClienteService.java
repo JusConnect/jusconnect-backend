@@ -119,11 +119,8 @@ public class ClienteService implements ClienteServiceInterface {
             );
         }
 
-        // Deletar todas as solicitações do cliente (cascata)
-        // O JPA irá cuidar disso se configurado corretamente, mas podemos fazer manualmente
         solicitacaoRepository.deleteByClienteId(clienteId);
 
-        // Deletar o cliente
         clienteRepository.delete(cliente);
     }
 

@@ -7,5 +7,6 @@ public interface AdvogadoServiceInterface {
     public AdvogadoResponseDTO cadastrarAdvogado(AdvogadoRequestDTO request);
     AdvogadoResponseDTO visualizarPerfil(Long id);
     AdvogadoResponseDTO atualizarPerfil(Long id, AdvogadoUpdateDTO request);
+    void deletarPerfil(Long advogadoId);
 
 }

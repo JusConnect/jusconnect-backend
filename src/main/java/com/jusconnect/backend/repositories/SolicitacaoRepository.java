@@ -29,4 +29,11 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     boolean existsByClienteIdAndStatus(Long clienteId, StatusSolicitacao status);
     
     void deleteByClienteId(Long clienteId);
+
+    boolean existsByAdvogadoIdAndStatus(Long advogadoId, StatusSolicitacao status);
+    
+    void deleteByAdvogadoId(Long advogadoId);
+    
+    List<Solicitacao> findByAdvogadoIdAndStatus(Long advogadoId, StatusSolicitacao status);
+    
 }

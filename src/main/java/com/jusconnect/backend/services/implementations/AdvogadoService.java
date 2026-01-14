@@ -6,9 +6,13 @@ import org.springframework.stereotype.Service;
 import com.jusconnect.backend.dtos.AdvogadoRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoResponseDTO;
 import com.jusconnect.backend.dtos.AdvogadoUpdateDTO;
+import com.jusconnect.backend.enums.StatusSolicitacao;
 import com.jusconnect.backend.models.Advogado;
 import com.jusconnect.backend.repositories.AdvogadoRepository;
+import com.jusconnect.backend.repositories.SolicitacaoRepository;
 import com.jusconnect.backend.services.interfaces.AdvogadoServiceInterface;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class AdvogadoService implements AdvogadoServiceInterface{
 
     private final AdvogadoRepository advogadoRepository;
+    private final SolicitacaoRepository solicitacaoRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
@@ -111,6 +116,28 @@ public class AdvogadoService implements AdvogadoServiceInterface{
                 .autodescricao(updatedAdvogado.getAutodescricao())
                 .area_de_atuacao(updatedAdvogado.getArea_de_atuacao())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void deletarPerfil(Long advogadoId) {
+        Advogado advogado = advogadoRepository.findById(advogadoId)
+            .orElseThrow(() -> new EntityNotFoundException("Advogado não encontrado"));
+
+        // Verificar se há solicitações aceitas (impedimento para deletar)
+        boolean temSolicitacoesAceitas = solicitacaoRepository
+            .existsByAdvogadoIdAndStatus(advogadoId, StatusSolicitacao.ACEITA);
+
+        if (temSolicitacoesAceitas) {
+            throw new IllegalStateException(
+                "Não é possível deletar o perfil. Você possui solicitações aceitas em andamento. " +
+                "Por favor, finalize ou recuse-as antes de deletar sua conta."
+            );
+        }
+
+        solicitacaoRepository.deleteByAdvogadoId(advogadoId);
+        
+        advogadoRepository.delete(advogado);
     }
 
 }
