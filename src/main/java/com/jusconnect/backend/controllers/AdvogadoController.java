@@ -120,4 +120,44 @@ public class AdvogadoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
         }
     }
+
+    @Operation(
+        summary = "Deletar meu perfil",
+        description = "Advogado deleta sua conta permanentemente. Não é possível deletar se houver solicitações aceitas em andamento.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Perfil deletado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token não informado ou inválido"),
+            @ApiResponse(responseCode = "404", description = "Advogado não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Impossível deletar - há solicitações aceitas"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        }
+    )
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deletarMeuPerfil(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não informado ou inválido");
+            }
+
+            String token = authHeader.substring(7);
+            Claims claims = jwtUtil.parseAllClaims(token);
+            Long advogadoId = claims.get("aid", Long.class);
+
+            if (advogadoId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não contém identificador de advogado");
+            }
+
+            advogadoService.deletarPerfil(advogadoId);
+            return ResponseEntity.ok("Perfil deletado com sucesso. Sentiremos sua falta!");
+            
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
+        }
+    }
+
 }

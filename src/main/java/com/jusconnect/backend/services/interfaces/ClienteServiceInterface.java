@@ -9,5 +9,6 @@ public interface ClienteServiceInterface {
     public ClienteResponseDTO cadastrarCliente (ClienteRequestDTO request);
     ClienteResponseDTO visualizarPerfil(Long id);
     ClienteResponseDTO atualizarPerfil(Long id, ClienteUpdateDTO request);
+    void deletarPerfil(Long clienteId);
 
 }
