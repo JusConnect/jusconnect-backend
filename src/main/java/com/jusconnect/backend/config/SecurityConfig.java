@@ -27,13 +27,20 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/advogados").permitAll()
-                .requestMatchers(HttpMethod.POST, "/clientes").permitAll()
+            .requestMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**"
+            ).permitAll()
 
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .requestMatchers("/advogados/**").permitAll()
+            .requestMatchers("/advogados").permitAll()
+            .requestMatchers("/clientes").permitAll()
+            .requestMatchers("/clientes/**").permitAll()
+
+            .anyRequest().authenticated()
+        );
+
         return http.build();
     }
 }
