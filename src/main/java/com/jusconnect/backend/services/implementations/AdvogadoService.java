@@ -1,5 +1,11 @@
 package com.jusconnect.backend.services.implementations;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -139,5 +145,57 @@ public class AdvogadoService implements AdvogadoServiceInterface{
         
         advogadoRepository.delete(advogado);
     }
+
+    @Override
+    public List<AdvogadoResponseDTO> listarAdvogadosOrdenadosPorNome() {
+        List<Advogado> advogados = advogadoRepository.findAllByOrderByNomeAsc();
+
+        return advogados.stream()
+                .map(advogado -> AdvogadoResponseDTO.builder()
+                        .id(advogado.getId())
+                        .nome(advogado.getNome())
+                        .cpf(advogado.getCpf())
+                        .email(advogado.getEmail())
+                        .telefone(advogado.getTelefone())
+                        .autodescricao(advogado.getAutodescricao())
+                        .area_de_atuacao(advogado.getArea_de_atuacao())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+                @Override
+                public List<AdvogadoResponseDTO> buscarAdvogados(String areaAtuacao, Integer tempoMinMeses) {
+                List<Advogado> advogados = advogadoRepository.findAllByOrderByNomeAsc();
+
+                // Filtro por área de atuação (String normalizada)
+                if (areaAtuacao != null && !areaAtuacao.isBlank()) {
+                    String filtroNormalizado = areaAtuacao.trim().toLowerCase(Locale.ROOT);
+                    advogados = advogados.stream()
+                        .filter(a -> a.getArea_de_atuacao() != null
+                            && a.getArea_de_atuacao().trim().toLowerCase(Locale.ROOT).equals(filtroNormalizado))
+                        .collect(Collectors.toList());
+                }
+
+                // Filtro por tempo mínimo na plataforma em meses
+                if (tempoMinMeses != null && tempoMinMeses > 0) {
+                    LocalDateTime agora = LocalDateTime.now();
+                    advogados = advogados.stream()
+                        .filter(a -> a.getDataCadastro() != null
+                            && ChronoUnit.MONTHS.between(a.getDataCadastro(), agora) >= tempoMinMeses)
+                        .collect(Collectors.toList());
+                }
+
+                return advogados.stream()
+                    .map(advogado -> AdvogadoResponseDTO.builder()
+                        .id(advogado.getId())
+                        .nome(advogado.getNome())
+                        .cpf(advogado.getCpf())
+                        .email(advogado.getEmail())
+                        .telefone(advogado.getTelefone())
+                        .autodescricao(advogado.getAutodescricao())
+                        .area_de_atuacao(advogado.getArea_de_atuacao())
+                        .build())
+                    .collect(Collectors.toList());
+                }
 
 }

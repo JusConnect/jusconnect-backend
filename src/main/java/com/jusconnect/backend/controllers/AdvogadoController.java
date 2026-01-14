@@ -1,5 +1,7 @@
 package com.jusconnect.backend.controllers;
 
+import java.util.List;
+
 import com.jusconnect.backend.config.JwtUtil;
 import com.jusconnect.backend.dtos.AdvogadoRequestDTO;
 import com.jusconnect.backend.dtos.AdvogadoResponseDTO;
@@ -27,6 +29,42 @@ public class AdvogadoController {
 
     private final AdvogadoServiceInterface advogadoService;
     private final JwtUtil jwtUtil;
+
+    @Operation(
+        summary = "Listar advogados para busca (cliente)",
+        description = "Retorna todos os perfis de advogados cadastrados em ordem alfabética para o cliente logado.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Lista de advogados retornada"),
+            @ApiResponse(responseCode = "401", description = "Token não informado ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso permitido apenas para clientes"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        }
+    )
+    @GetMapping
+    public ResponseEntity<?> listarAdvogadosParaBusca(
+            HttpServletRequest request,
+            @RequestParam(value = "areaAtuacao", required = false) String areaAtuacao,
+            @RequestParam(value = "tempoMinMeses", required = false) Integer tempoMinMeses) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token não informado ou inválido");
+            }
+
+            String token = authHeader.substring(7);
+            Claims claims = jwtUtil.parseAllClaims(token);
+            String role = claims.get("role", String.class);
+
+            if (!"CLIENTE".equals(role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas clientes podem listar advogados para busca");
+            }
+
+            List<AdvogadoResponseDTO> advogados = advogadoService.buscarAdvogados(areaAtuacao, tempoMinMeses);
+            return ResponseEntity.ok(advogados);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
+        }
+    }
 
     @Operation(
         summary = "Cadastrar novo advogado",
