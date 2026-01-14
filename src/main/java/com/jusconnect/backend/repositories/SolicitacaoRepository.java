@@ -1,11 +1,12 @@
 package com.jusconnect.backend.repositories;
 
-import com.jusconnect.backend.enums.StatusSolicitacao;
-import com.jusconnect.backend.models.Solicitacao;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.jusconnect.backend.enums.StatusSolicitacao;
+import com.jusconnect.backend.models.Solicitacao;
 
 @Repository
 public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> {
@@ -24,4 +25,8 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
 
     // Verificar se cliente já solicitou um advogado específico
     boolean existsByClienteIdAndAdvogadoIdAndStatus(Long clienteId, Long advogadoId, StatusSolicitacao status);
+
+    boolean existsByClienteIdAndStatus(Long clienteId, StatusSolicitacao status);
+    
+    void deleteByClienteId(Long clienteId);
 }
