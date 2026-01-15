@@ -163,7 +163,7 @@ class ClienteControllerTest {
         @DisplayName("Scenario: Deve retornar 401 sem token de autenticação")
         void deveRetornar401SemToken() throws Exception {
             mockMvc.perform(get("/clientes/me"))
-                    .andExpect(status().isForbidden());
+					.andExpect(status().isUnauthorized());
         }
 
         @Test
