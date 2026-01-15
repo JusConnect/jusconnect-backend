@@ -40,7 +40,8 @@ public class SecurityConfig {
             .requestMatchers("/clientes/**").permitAll()
 
             .anyRequest().authenticated()
-        );
+        )
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
