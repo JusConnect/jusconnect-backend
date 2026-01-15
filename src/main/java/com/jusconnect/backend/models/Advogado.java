@@ -2,6 +2,7 @@ package com.jusconnect.backend.models;
 
 import lombok.*;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -36,4 +37,14 @@ public class Advogado {
 
     @Column(nullable = false)
     private String area_de_atuacao;
+
+    @Column(nullable = false)
+    private LocalDateTime dataCadastro;
+
+    @PrePersist
+    protected void onCreate() {
+        if (dataCadastro == null) {
+            dataCadastro = LocalDateTime.now();
+        }
+    }
 }
