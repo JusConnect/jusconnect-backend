@@ -33,6 +33,7 @@ public class SecurityConfig {
                 "/v3/api-docs/**"
             ).permitAll()
 
+            .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/advogados/**").permitAll()
             .requestMatchers("/advogados").permitAll()
             .requestMatchers("/clientes").permitAll()
